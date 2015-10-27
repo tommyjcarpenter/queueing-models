@@ -4,7 +4,7 @@ from math import pow
 
 _tol = .00001
 
-def elm_recursive(rho, N, m, cache = {}):
+def _elm_recursive(rho, N, m, cache = {}):
     if m == 0:
         return 1
     else:
@@ -12,17 +12,23 @@ def elm_recursive(rho, N, m, cache = {}):
         if k in cache:
             term = cache[k]
         else:
-            term = elm_recursive(rho, N, m-1)
+            term = _elm_recursive(rho, N, m-1)
             cache[k] = term
             
         return (rho*(N - m + 1)*term ) / (m + rho*(N - m + 1)*term) 
 
+def elm_recursive(rho, N, m):
+    #iverson page 146, eq 5.45
+    E = _elm_recursive(rho, N, m)
+    return ( (N - m)*E*(1 + rho) ) / (N + (N - m)*E*rho)
+
+
 def elm_comb(rho, N, m):
     offered_traffic = rho / (1 + rho)
-    numerator = comb(N, m, exact=True)*pow(offered_traffic, m)*pow(1-offered_traffic, N-m)
+    numerator = comb(N-1, m, exact=True)*pow(offered_traffic, m)*pow(1-offered_traffic, N-m)
     denominator = 0
     for i in range(0, m+1):
-        denominator += comb(N, i, exact=True)*pow(offered_traffic,  i)*pow(1-offered_traffic, N-i)
+        denominator += comb(N-1, i, exact=True)*pow(offered_traffic,  i)*pow(1-offered_traffic, N-i)
     
     return numerator / denominator
 
@@ -39,3 +45,5 @@ def test():
             for m in range(1, N):
                 print(rho, N, m, elm_recursive(rho, N, m))
                 assert abs(elm_comb(rho, N, m) - elm_recursive(rho, N, m)) < _tol
+
+test()
