@@ -22,7 +22,6 @@ def elm_recursive(rho, N, m):
     E = _elm_recursive(rho, N, m)
     return ( (N - m)*E*(1 + rho) ) / (N + (N - m)*E*rho)
 
-
 def elm_comb(rho, N, m):
     offered_traffic = rho / (1 + rho)
     numerator = comb(N-1, m, exact=True)*pow(offered_traffic, m)*pow(1-offered_traffic, N-m)
@@ -30,6 +29,13 @@ def elm_comb(rho, N, m):
     for i in range(0, m+1):
         denominator += comb(N-1, i, exact=True)*pow(offered_traffic,  i)*pow(1-offered_traffic, N-i)
     
+    return numerator / denominator
+
+def elm_comb_orig(rho, N, m):
+    numerator = comb(N-1, m, exact=True)*pow(rho, m)
+    denominator = 0
+    for i in range(0, m+1):
+        denominator += comb(N-1, i, exact=True)*pow(rho,  i)
     return numerator / denominator
 
 ########################################################################    
@@ -45,5 +51,6 @@ def test():
             for m in range(1, N):
                 print(rho, N, m, elm_recursive(rho, N, m))
                 assert abs(elm_comb(rho, N, m) - elm_recursive(rho, N, m)) < _tol
+                assert abs(elm_comb_orig(rho, N, m) - elm_comb(rho, N, m)) < _tol
 
 test()
